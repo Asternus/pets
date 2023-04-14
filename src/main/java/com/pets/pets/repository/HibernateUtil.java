@@ -1,2 +1,45 @@
-package com.pets.pets.repository;public class HibernateUtil {
+package com.pets.pets.repository;
+
+import com.pets.pets.entity.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+
+public class HibernateUtil {
+
+    private static SessionFactory sessionFactory;
+
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try {
+                Configuration configuration = new Configuration();
+
+                configuration.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+                configuration.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost:5432/pest");
+                configuration.setProperty("hibernate.connection.username", "postgres");
+                configuration.setProperty("hibernate.connection.password", "root");
+
+                configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL82Dialect");
+                configuration.setProperty("hibernate.show_sql", "true");
+                configuration.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+
+                configuration.addAnnotatedClass(User.class);
+
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                        .applySettings(configuration.getProperties()).build();
+
+                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return sessionFactory;
+    }
+
+    public static Session openSession() {
+        return getSessionFactory().openSession();
+    }
+
 }
